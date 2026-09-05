@@ -38,7 +38,7 @@ function CardRing() {
         return {
           card: makeCard(i),
           angle: a,
-          radius: 4.8,
+          radius: 6.6,
           y: Math.sin(a * 2) * 0.5,
           phase: i * 0.7,
         };
@@ -58,7 +58,7 @@ function CardRing() {
   });
 
   return (
-    <group ref={group}>
+    <group ref={group} position={[0, -0.4, 0]} rotation={[0.12, 0, 0]}>
       {cards.map((c, i) => (
         <group
           key={c.card.id}
@@ -86,15 +86,15 @@ function HeroCard() {
     ref.current.position.y = Math.sin(t * 0.8) * 0.18;
   });
   return (
-    <group ref={ref} position={[0, 0.2, -2.2]}>
-      <Card3D card={{ id: "hero", color: "wild", value: "wild" }} scale={1.7} />
+    <group ref={ref} position={[0, 0.2, -5]}>
+      <Card3D card={{ id: "hero", color: "wild", value: "wild" }} scale={1.5} />
     </group>
   );
 }
 
 export default function LandingScene() {
   return (
-    <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 1.4, 9], fov: 52 }}>
+    <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 2.2, 12], fov: 48 }}>
       <color attach="background" args={["#101426"]} />
       <fog attach="fog" args={["#101426", 10, 26]} />
       <ambientLight intensity={0.55} />
