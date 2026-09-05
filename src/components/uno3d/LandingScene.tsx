@@ -20,11 +20,11 @@ function makeCard(i: number): UnoCard {
     "0",
     "8",
   ];
-  const value = values[i % values.length];
+  const value = values[i % values.length]!;
   const isWild = value === "wild" || value === "wild4";
   return {
     id: `landing-${i}`,
-    color: isWild ? "wild" : COLORS[i % COLORS.length],
+    color: isWild ? "wild" : COLORS[i % COLORS.length]!,
     value,
   };
 }
@@ -51,8 +51,9 @@ function CardRing() {
     group.current.rotation.y += delta * 0.22;
     const t = state.clock.elapsedTime;
     group.current.children.forEach((child, i) => {
-      child.position.y = cards[i].y + Math.sin(t * 0.9 + cards[i].phase) * 0.28;
-      child.rotation.z = Math.sin(t * 0.6 + cards[i].phase) * 0.16;
+      const c = cards[i]!;
+      child.position.y = c.y + Math.sin(t * 0.9 + c.phase) * 0.28;
+      child.rotation.z = Math.sin(t * 0.6 + c.phase) * 0.16;
     });
   });
 

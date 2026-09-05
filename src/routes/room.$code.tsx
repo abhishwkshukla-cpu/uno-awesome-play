@@ -147,9 +147,18 @@ function RoomPage() {
   async function takeSeat() {
     if (!game) return;
     const trimmed = nameInput.trim();
-    if (!trimmed) return toast.error("Enter your name first");
-    if (game.status !== "lobby") return toast.error("This game already started");
-    if (players.length >= game.max_players) return toast.error("Table is full");
+    if (!trimmed) {
+      toast.error("Enter your name first");
+      return;
+    }
+    if (game.status !== "lobby") {
+      toast.error("This game already started");
+      return;
+    }
+    if (players.length >= game.max_players) {
+      toast.error("Table is full");
+      return;
+    }
     setPlayerName(trimmed);
     const used = new Set(players.map((p) => p.seat));
     let seat = 0;
@@ -166,13 +175,16 @@ function RoomPage() {
 
   async function startGame() {
     if (!game || !isHost) return;
-    if (players.length < 2) return toast.error("You need at least 2 players");
+    if (players.length < 2) {
+      toast.error("You need at least 2 players");
+      return;
+    }
     setWorking(true);
     let deck = buildDeck();
     const hands: Record<string, UnoCard[]> = {};
     for (const p of players) hands[p.id] = [];
     for (let r = 0; r < 7; r++) {
-      for (const p of players) hands[p.id].push(deck.pop()!);
+      for (const p of players) hands[p.id]!.push(deck.pop()!);
     }
     let first = deck.pop()!;
     while (first.color === "wild") {
@@ -189,7 +201,7 @@ function RoomPage() {
         draw_pile: toJson(deck),
         discard_pile: toJson([first]),
         current_color: first.color,
-        turn_seat: players[0].seat,
+        turn_seat: players[0]!.seat,
         direction: 1,
         winner_client: null,
         last_action: "Game started",
@@ -206,7 +218,7 @@ function RoomPage() {
     const order = seatOrder();
     const idx = order.indexOf(seat);
     const next = (((idx + steps * direction) % order.length) + order.length) % order.length;
-    return order[next];
+    return order[next]!;
   }
 
   function drawCards(count: number, drawPile: UnoCard[], discardPile: UnoCard[]) {
@@ -228,7 +240,10 @@ function RoomPage() {
 
   async function playCard(card: UnoCard, chosenColor?: CardColor) {
     if (!game || !me || !myTurn || working) return;
-    if (!canPlay(card, top, currentColor)) return toast.error("You can't play that card");
+    if (!canPlay(card, top, currentColor)) {
+      toast.error("You can't play that card");
+      return;
+    }
     if (card.color === "wild" && !chosenColor) {
       setPickColorFor(card);
       return;

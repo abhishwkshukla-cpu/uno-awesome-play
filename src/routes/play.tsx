@@ -40,7 +40,10 @@ function PlaySetup() {
 
   async function createRoom() {
     const trimmed = name.trim();
-    if (!trimmed) return toast.error("Enter your player name first");
+    if (!trimmed) {
+      toast.error("Enter your player name first");
+      return;
+    }
     setBusy(true);
     setPlayerName(trimmed);
     const clientId = getClientId();
@@ -52,7 +55,10 @@ function PlaySetup() {
       .single();
     if (error || !game) {
       setBusy(false);
-      return toast.error("Could not create the table. Try again.");
+      {
+      toast.error("Could not create the table. Try again.");
+      return;
+    }
     }
     const { error: pErr } = await supabase.from("players").insert({
       game_id: game.id,
@@ -62,15 +68,24 @@ function PlaySetup() {
       is_host: true,
     });
     setBusy(false);
-    if (pErr) return toast.error("Could not take a seat. Try again.");
+    if (pErr) {
+      toast.error("Could not take a seat. Try again.");
+      return;
+    }
     navigate({ to: "/room/$code", params: { code } });
   }
 
   async function joinRoom() {
     const trimmed = name.trim();
     const code = joinCode.trim().toUpperCase();
-    if (!trimmed) return toast.error("Enter your player name first");
-    if (!code) return toast.error("Enter the room code");
+    if (!trimmed) {
+      toast.error("Enter your player name first");
+      return;
+    }
+    if (!code) {
+      toast.error("Enter the room code");
+      return;
+    }
     setPlayerName(trimmed);
     navigate({ to: "/room/$code", params: { code } });
   }
