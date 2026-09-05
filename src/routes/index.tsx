@@ -37,6 +37,8 @@ function Landing() {
         </ClientOnly>
       </div>
 
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(8,10,20,0.86)_0%,rgba(8,10,20,0.35)_55%,transparent_80%)]" />
+
       <div className="pointer-events-none relative z-10 flex min-h-screen flex-col items-center justify-between px-6 py-10 text-center">
         <header className="pointer-events-auto">
           <p className="text-sm uppercase tracking-[0.5em] text-uno-yellow">Online card table</p>
