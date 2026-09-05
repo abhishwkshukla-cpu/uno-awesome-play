@@ -63,6 +63,9 @@ interface PlayerRow {
   hand: unknown;
 }
 
+const seatColor = (i: number) => COLOR_HEX[COLORS[i % COLORS.length]!];
+const toJson = (cards: UnoCard[]) => cards as unknown as never;
+
 const asCards = (value: unknown): UnoCard[] => (Array.isArray(value) ? (value as UnoCard[]) : []);
 
 function RoomPage() {
@@ -177,14 +180,14 @@ function RoomPage() {
       first = deck.pop()!;
     }
     await Promise.all(
-      players.map((p) => supabase.from("players").update({ hand: hands[p.id], called_uno: false }).eq("id", p.id)),
+      players.map((p) => supabase.from("players").update({ hand: toJson(hands[p.id]!), called_uno: false }).eq("id", p.id)),
     );
     await supabase
       .from("games")
       .update({
         status: "playing",
-        draw_pile: deck,
-        discard_pile: [first],
+        draw_pile: toJson(deck),
+        discard_pile: toJson([first]),
         current_color: first.color,
         turn_seat: players[0].seat,
         direction: 1,
@@ -260,21 +263,21 @@ function RoomPage() {
       disc = res.disc;
       await supabase
         .from("players")
-        .update({ hand: [...asCards(victim.hand), ...res.taken], called_uno: false })
+        .update({ hand: toJson([...asCards(victim.hand), ...res.taken]), called_uno: false })
         .eq("id", victim.id);
     }
 
     const won = newHand.length === 0;
     await supabase
       .from("players")
-      .update({ hand: newHand, called_uno: newHand.length === 1 ? me.called_uno : false })
+      .update({ hand: toJson(newHand), called_uno: newHand.length === 1 ? me.called_uno : false })
       .eq("id", me.id);
 
     await supabase
       .from("games")
       .update({
-        draw_pile: pile,
-        discard_pile: disc,
+        draw_pile: toJson(pile),
+        discard_pile: toJson(disc),
         current_color: color,
         direction,
         turn_seat: won ? me.seat : seatAfter(me.seat, steps, direction),
@@ -293,13 +296,13 @@ function RoomPage() {
     const res = drawCards(1, asCards(game.draw_pile), discard);
     await supabase
       .from("players")
-      .update({ hand: [...myHand, ...res.taken], called_uno: false })
+      .update({ hand: toJson([...myHand, ...res.taken]), called_uno: false })
       .eq("id", me.id);
     await supabase
       .from("games")
       .update({
-        draw_pile: res.pile,
-        discard_pile: res.disc,
+        draw_pile: toJson(res.pile),
+        discard_pile: toJson(res.disc),
         turn_seat: seatAfter(me.seat, 1, game.direction),
         last_action: `${me.name} drew a card`,
       })
@@ -317,9 +320,9 @@ function RoomPage() {
     if (!isHost || !game) return;
     await supabase
       .from("games")
-      .update({ status: "lobby", discard_pile: [], draw_pile: [], winner_client: null, last_action: null })
+      .update({ status: "lobby", discard_pile: toJson([]), draw_pile: toJson([]), winner_client: null, last_action: null })
       .eq("id", game.id);
-    await Promise.all(players.map((p) => supabase.from("players").update({ hand: [], called_uno: false }).eq("id", p.id)));
+    await Promise.all(players.map((p) => supabase.from("players").update({ hand: toJson([]), called_uno: false }).eq("id", p.id)));
   }
 
   /* ---------------------------- render ---------------------------- */
@@ -406,7 +409,7 @@ function RoomPage() {
               >
                 <span
                   className="text-display flex h-9 w-9 items-center justify-center rounded-full text-white"
-                  style={{ backgroundColor: COLOR_HEX[COLORS[i % 4]] }}
+                  style={{ backgroundColor: seatColor(i) }}
                 >
                   {i + 1}
                 </span>
@@ -466,7 +469,7 @@ function RoomPage() {
                 active ? "border-uno-yellow bg-card shadow-glow" : "border-border bg-card/60"
               }`}
             >
-              <p className="font-semibold" style={{ color: COLOR_HEX[COLORS[i % 4]] }}>
+              <p className="font-semibold" style={{ color: seatColor(i) }}>
                 {p.name}
               </p>
               <div className="mt-2 flex justify-center -space-x-6">
