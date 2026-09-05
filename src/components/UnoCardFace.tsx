@@ -30,11 +30,11 @@ export function UnoCardFace({
   const isWild = !card || card.color === "wild";
   const panel = back ? "#111111" : isWild ? "#111111" : COLOR_HEX[card!.color];
 
+  const Tag = onClick ? "button" : "div";
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled || !onClick}
+    <Tag
+      {...(onClick ? { type: "button" as const, onClick, disabled } : {})}
       className={cn(
         "relative shrink-0 rounded-xl bg-white p-[6px] shadow-card transition-transform duration-200",
         SIZES[size],
@@ -82,6 +82,6 @@ export function UnoCardFace({
           </span>
         </>
       )}
-    </button>
+    </Tag>
   );
 }
