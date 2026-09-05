@@ -98,7 +98,7 @@ export default function LandingScene() {
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 1.6, 8], fov: 50 }}>
       <color attach="background" args={["#101426"]} />
-      <fog attach="fog" args={["#101426", 10, 010 + 12]} />
+      <fog attach="fog" args={["#101426", 10, 26]} />
       <ambientLight intensity={0.55} />
       <directionalLight
         position={[6, 10, 6]}
