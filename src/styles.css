@@ -154,6 +154,15 @@
   }
 }
 
+@utility night-page {
+  background-image:
+    linear-gradient(oklch(0.1 0.025 265 / 0.52), oklch(0.1 0.025 265 / 0.82)),
+    url("/__l5e/assets-v1/59c9ada7-b5cd-4084-a0df-e729d53730b5/night-sky.jpg");
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
 @layer base {
   body {
     font-family: var(--font-sans);
@@ -233,7 +242,7 @@
 }
 
 @utility animate-card-in {
-  animation: card-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
+  animation: card-in 0.18s ease-out both;
 }
 
 @utility animate-float-y {
