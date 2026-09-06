@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Globe2, Link2, LogIn, Users } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getClientId, getPlayerName, setPlayerName, makeRoomCode } from "@/lib/identity";
-import { UnoCardFace } from "@/components/UnoCardFace";
-import { COLORS } from "@/lib/uno";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/play")({
   head: () => ({
@@ -75,6 +75,28 @@ function PlaySetup() {
     navigate({ to: "/room/$code", params: { code } });
   }
 
+  async function quickMatch() {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.error("Enter your player name first");
+      return;
+    }
+    setBusy(true);
+    setPlayerName(trimmed);
+    const { data, error } = await supabase.rpc("find_or_create_match", {
+      p_client_id: getClientId(),
+      p_name: trimmed,
+      p_max_players: seats,
+    });
+    setBusy(false);
+    const match = data?.[0];
+    if (error || !match) {
+      toast.error("Could not find a match. Try again.");
+      return;
+    }
+    navigate({ to: "/room/$code", params: { code: match.code } });
+  }
+
   async function joinRoom() {
     const trimmed = name.trim();
     const code = joinCode.trim().toUpperCase();
@@ -91,19 +113,17 @@ function PlaySetup() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-8 px-5 py-12">
-      <div className="text-center">
-        <Link to="/" className="text-display text-4xl text-uno-yellow">
+    <main className="night-page min-h-screen px-4 py-8 sm:px-6 sm:py-12">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl flex-col justify-center">
+        <div className="text-center">
+        <Link to="/" className="text-display text-5xl text-uno-yellow">
           UNO
         </Link>
-        <h1 className="text-display mt-4 text-3xl">Set up your table</h1>
-        <p className="mt-2 text-muted-foreground">
-          Pick how many friends are playing, then share the invite link.
-        </p>
-      </div>
+        <h1 className="mt-3 text-2xl font-black">Choose your game</h1>
+        </div>
 
-      <section className="rounded-3xl border border-border bg-card/80 p-6 backdrop-blur">
-        <label className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+      <section className="mt-8 rounded-lg border border-border bg-card/85 p-5 shadow-card backdrop-blur-md sm:p-7">
+        <label className="text-sm font-bold text-muted-foreground">
           Your name
         </label>
         <input
@@ -114,45 +134,38 @@ function PlaySetup() {
           className="mt-2 w-full rounded-xl border border-input bg-background px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-ring"
         />
 
-        <p className="mt-6 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-          Players at the table
+        <p className="mt-6 text-sm font-bold text-muted-foreground">
+          Match size
         </p>
-        <div className="mt-3 flex flex-wrap gap-3">
+        <div className="mt-3 grid grid-cols-5 gap-2">
           {[2, 3, 4, 5, 6].map((n) => (
-            <button
+            <Button
               key={n}
+              type="button"
+              variant={seats === n ? "default" : "secondary"}
               onClick={() => setSeats(n)}
-              className={`text-display h-14 w-14 rounded-2xl border text-2xl transition-transform hover:scale-105 ${
-                seats === n
-                  ? "border-uno-yellow bg-uno-red text-white shadow-glow"
-                  : "border-border bg-secondary text-foreground"
-              }`}
+              className={`text-display h-12 min-w-0 rounded-md border text-xl ${seats === n ? "border-uno-yellow bg-uno-red shadow-glow" : "border-border"}`}
             >
               {n}
-            </button>
+            </Button>
           ))}
         </div>
 
-        <div className="mt-6 flex justify-center gap-2">
-          {COLORS.slice(0, Math.min(seats, 4)).map((c, i) => (
-            <div key={c} className="animate-card-in" style={{ animationDelay: `${i * 70}ms` }}>
-              <UnoCardFace card={{ id: `p${i}`, color: c, value: String(i + 1) as never }} size="sm" />
-            </div>
-          ))}
+        <div className="mt-7 grid gap-3 sm:grid-cols-2">
+          <Button onClick={createRoom} disabled={busy} className="h-auto rounded-md bg-uno-red px-5 py-5 text-left hover:bg-uno-red/90">
+            <Link2 className="size-6" />
+            <span><span className="block text-lg font-black">Invite friends</span><span className="block text-xs font-normal opacity-80">Create a private room</span></span>
+          </Button>
+          <Button onClick={quickMatch} disabled={busy} className="h-auto rounded-md bg-uno-blue px-5 py-5 text-left hover:bg-uno-blue/90">
+            <Globe2 className="size-6" />
+            <span><span className="block text-lg font-black">Quick match</span><span className="block text-xs font-normal opacity-80">Play with new people</span></span>
+          </Button>
         </div>
-
-        <button
-          onClick={createRoom}
-          disabled={busy}
-          className="text-display mt-7 w-full rounded-2xl bg-uno-red py-4 text-2xl text-white shadow-card transition-transform hover:scale-[1.02] disabled:opacity-60"
-        >
-          {busy ? "Dealing…" : "Create table"}
-        </button>
       </section>
 
-      <section className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur">
-        <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-          Got an invite code?
+      <section className="mt-4 rounded-lg border border-border bg-card/75 p-5 backdrop-blur-md">
+        <p className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
+          <Users className="size-4" /> Join a private room
         </p>
         <div className="mt-3 flex gap-3">
           <input
@@ -160,16 +173,18 @@ function PlaySetup() {
             onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
             maxLength={5}
             placeholder="ABC12"
-            className="text-display w-full rounded-xl border border-input bg-background px-4 py-3 text-xl tracking-[0.3em] outline-none focus:ring-2 focus:ring-ring"
+            className="text-display min-w-0 flex-1 rounded-md border border-input bg-background/85 px-4 py-3 text-xl tracking-[0.3em] outline-none focus:ring-2 focus:ring-ring"
           />
-          <button
+          <Button
             onClick={joinRoom}
-            className="text-display rounded-xl bg-uno-blue px-6 text-lg text-white transition-transform hover:scale-105"
+            className="h-auto rounded-md bg-uno-blue px-5 hover:bg-uno-blue/90"
+            aria-label="Join room"
           >
-            Join
-          </button>
+            <LogIn className="size-5" /><span className="hidden sm:inline">Join</span>
+          </Button>
         </div>
       </section>
+      </div>
     </main>
   );
 }

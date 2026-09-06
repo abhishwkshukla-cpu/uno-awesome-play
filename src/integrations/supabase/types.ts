@@ -24,6 +24,7 @@ export type Database = {
           draw_pile: Json
           host_client: string
           id: string
+          is_public: boolean
           last_action: string | null
           max_players: number
           pending_draw: number
@@ -41,6 +42,7 @@ export type Database = {
           draw_pile?: Json
           host_client: string
           id?: string
+          is_public?: boolean
           last_action?: string | null
           max_players?: number
           pending_draw?: number
@@ -58,6 +60,7 @@ export type Database = {
           draw_pile?: Json
           host_client?: string
           id?: string
+          is_public?: boolean
           last_action?: string | null
           max_players?: number
           pending_draw?: number
@@ -117,7 +120,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      find_or_create_match: {
+        Args: { p_client_id: string; p_max_players: number; p_name: string }
+        Returns: {
+          code: string
+          is_host: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

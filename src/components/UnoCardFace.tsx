@@ -28,7 +28,7 @@ export function UnoCardFace({
 }: Props) {
   const glyph = card ? cardGlyph(card) : "UNO";
   const isWild = !card || card.color === "wild";
-  const panel = back ? "#111111" : isWild ? "#111111" : COLOR_HEX[card!.color];
+  const panel = back ? "#111111" : isWild ? "#111111" : card ? COLOR_HEX[card.color] : "#111111";
 
   const Tag = onClick ? "button" : "div";
 
@@ -36,7 +36,7 @@ export function UnoCardFace({
     <Tag
       {...(onClick ? { type: "button" as const, onClick, disabled } : {})}
       className={cn(
-        "relative shrink-0 rounded-xl bg-white p-[6px] shadow-card transition-transform duration-200",
+        "relative shrink-0 rounded-xl bg-white p-[6px] shadow-card transition-transform duration-100",
         SIZES[size],
         onClick && !disabled && "cursor-pointer hover:-translate-y-4 hover:shadow-glow",
         disabled && onClick && "opacity-55",

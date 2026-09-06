@@ -1,0 +1,1 @@
+ALTER FUNCTION public.find_or_create_match(text, text, integer) SECURITY INVOKER;

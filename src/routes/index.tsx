@@ -37,44 +37,20 @@ function Landing() {
         </ClientOnly>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(8,10,20,0.92)_0%,rgba(8,10,20,0.6)_45%,transparent_80%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-background/25" />
 
-      <div className="pointer-events-none relative z-10 flex min-h-screen flex-col items-center justify-between px-6 py-10 text-center">
-        <header className="pointer-events-auto">
-          <p className="text-sm uppercase tracking-[0.5em] text-uno-yellow">Online card table</p>
-        </header>
-
-        <div className="pointer-events-auto flex flex-col items-center gap-6">
+      <div className="pointer-events-none relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">
+        <div className="pointer-events-auto flex flex-col items-center gap-8">
           <h1 className="text-display text-[22vw] leading-none text-uno-yellow drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] sm:text-[9rem]">
             UNO
           </h1>
-          <p className="max-w-md text-base text-foreground/85">
-            Classic cards, real friends. Choose 2 to 6 seats, share your invite link and play
-            live at the same table.
-          </p>
           <Link
             to="/play"
-            className="text-display animate-pulse-ring rounded-full bg-uno-red px-14 py-5 text-3xl text-white shadow-card transition-transform duration-200 hover:scale-105"
+            className="text-display animate-pulse-ring rounded-full bg-uno-red px-16 py-5 text-3xl text-primary-foreground shadow-card transition-transform duration-150 hover:scale-105"
           >
-            PLAY UNO
+            PLAY
           </Link>
         </div>
-
-        <ul className="pointer-events-auto grid w-full max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
-          {[
-            ["2–6 players", "Pick your table size before you deal"],
-            ["Invite links", "One link, everyone joins instantly"],
-            ["Live table", "Cards fly the moment someone plays"],
-          ].map(([title, sub]) => (
-            <li
-              key={title}
-              className="animate-float-y rounded-2xl border border-border bg-card/70 px-4 py-3 backdrop-blur"
-            >
-              <p className="text-display text-uno-yellow">{title}</p>
-              <p className="text-muted-foreground">{sub}</p>
-            </li>
-          ))}
-        </ul>
       </div>
     </main>
   );
