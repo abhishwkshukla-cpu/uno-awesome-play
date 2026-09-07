@@ -310,6 +310,26 @@ function RoomPage() {
     }
 
     const won = newHand.length === 0;
+    const nextTurn = won ? me.seat : seatAfter(me.seat, steps, direction);
+
+    // Optimistic local update so the card leaves the hand instantly.
+    setPlayers((prev) =>
+      prev.map((p) => (p.id === me.id ? ({ ...p, hand: toJson(newHand) } as PlayerRow) : p)),
+    );
+    setGame((prev) =>
+      prev
+        ? {
+            ...prev,
+            discard_pile: toJson(disc),
+            current_color: color,
+            direction,
+            turn_seat: nextTurn,
+            status: won ? "finished" : "playing",
+          }
+        : prev,
+    );
+    setWorking(false);
+
     await supabase
       .from("players")
       .update({ hand: toJson(newHand), called_uno: newHand.length === 1 ? me.called_uno : false })
