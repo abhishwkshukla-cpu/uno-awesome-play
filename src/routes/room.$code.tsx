@@ -436,82 +436,121 @@ function RoomPage() {
   }
 
   if (game.status === "lobby") {
+    const emptySeats = Math.max(0, game.max_players - players.length);
     return (
-      <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-6 px-5 py-12">
-        <div className="text-center">
-          <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground">Waiting room</p>
-          <p className="text-display mt-2 text-6xl tracking-[0.2em] text-uno-yellow">{game.code}</p>
-        </div>
+      <main className="night-page min-h-screen px-4 py-6">
+        <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-4">
+          <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <Link to="/" className="text-display truncate text-3xl text-uno-yellow">
+              UNO
+            </Link>
+            <span className="shrink-0 rounded-full bg-secondary/70 px-3 py-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {game.is_public ? "Quick match" : "Private room"}
+            </span>
+          </header>
 
-        <div className="rounded-3xl border border-border bg-card/80 p-6 backdrop-blur">
-          <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-            Invite link
-          </p>
-          <div className="mt-2 flex gap-2">
-            <input
-              readOnly
-              value={inviteLink}
-              className="w-full truncate rounded-xl border border-input bg-background px-3 py-3 text-sm"
-            />
-            <button
-              onClick={() => {
-                void navigator.clipboard.writeText(inviteLink);
-                toast.success("Invite link copied");
-              }}
-              className="text-display rounded-xl bg-uno-blue px-5 text-white"
-            >
-              Copy
-            </button>
-          </div>
-
-          <p className="mt-6 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-            Players {players.length}/{game.max_players}
-          </p>
-          <ul className="mt-3 space-y-2">
-            {players.map((p, i) => (
-              <li
-                key={p.id}
-                className="animate-card-in flex items-center gap-3 rounded-2xl bg-secondary px-4 py-3"
-                style={{ animationDelay: `${i * 60}ms` }}
-              >
-                <span
-                  className="text-display flex h-9 w-9 items-center justify-center rounded-full text-white"
-                  style={{ backgroundColor: seatColor(i) }}
-                >
-                  {i + 1}
-                </span>
-                <span className="font-semibold">{p.name}</span>
-                {p.is_host && <span className="text-xs text-uno-yellow">HOST</span>}
-                {p.client_id === clientId && <span className="text-xs text-muted-foreground">you</span>}
-              </li>
-            ))}
-            {Array.from({ length: Math.max(0, game.max_players - players.length) }).map((_, i) => (
-              <li
-                key={`empty-${i}`}
-                className="animate-float-y rounded-2xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground"
-              >
-                Waiting for a player…
-              </li>
-            ))}
-          </ul>
-
-          {isHost ? (
-            <button
-              onClick={startGame}
-              disabled={players.length < 2 || working}
-              className="text-display mt-6 w-full rounded-2xl bg-uno-red py-4 text-2xl text-white disabled:opacity-50"
-            >
-              {players.length < 2 ? "Need 2+ players" : "Deal the cards"}
-            </button>
-          ) : (
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Waiting for the host to start…
+          <section className="rounded-2xl border border-border bg-card/80 p-5 text-center backdrop-blur-md">
+            <p className="text-xs font-bold uppercase tracking-[0.35em] text-muted-foreground">
+              Room code
             </p>
-          )}
+            <p className="text-display mt-1 text-5xl leading-none tracking-[0.18em] text-uno-yellow sm:text-6xl">
+              {game.code}
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  void navigator.clipboard.writeText(game.code);
+                  toast.success("Room code copied");
+                }}
+                className="rounded-xl bg-secondary px-3 py-3 text-sm font-bold"
+              >
+                Copy code
+              </button>
+              <button
+                onClick={() => {
+                  void navigator.clipboard.writeText(inviteLink);
+                  toast.success("Invite link copied");
+                }}
+                className="rounded-xl bg-uno-blue px-3 py-3 text-sm font-bold text-white"
+              >
+                Copy link
+              </button>
+            </div>
+          </section>
+
+          <section className="flex-1 rounded-2xl border border-border bg-card/70 p-4 backdrop-blur-md">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+              <p className="truncate text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                Players
+              </p>
+              <span className="text-display shrink-0 text-lg text-uno-yellow">
+                {players.length}/{game.max_players}
+              </span>
+            </div>
+
+            <ul className="mt-3 flex flex-col gap-2">
+              {players.map((p, i) => (
+                <li
+                  key={p.id}
+                  className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-secondary/80 px-3 py-3"
+                >
+                  <span
+                    className="text-display flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
+                    style={{ backgroundColor: seatColor(i) }}
+                  >
+                    {i + 1}
+                  </span>
+                  <span className="truncate font-bold">
+                    {p.name}
+                    {p.client_id === clientId && (
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">you</span>
+                    )}
+                  </span>
+                  <span className="shrink-0 text-xs font-bold text-uno-yellow">
+                    {p.is_host ? "HOST" : "READY"}
+                  </span>
+                </li>
+              ))}
+              {Array.from({ length: emptySeats }).map((_, i) => (
+                <li
+                  key={`empty-${i}`}
+                  className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border border-dashed border-border px-3 py-3"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground">
+                    +
+                  </span>
+                  <span className="truncate text-sm text-muted-foreground">
+                    {game.is_public ? "Searching for a player…" : "Waiting for a friend…"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <div className="sticky bottom-0 pb-2">
+            {isHost ? (
+              <button
+                onClick={startGame}
+                disabled={players.length < 2 || working}
+                className="text-display w-full rounded-2xl bg-uno-red py-4 text-xl text-white shadow-glow disabled:opacity-50"
+              >
+                {players.length < 2
+                  ? "Waiting for players…"
+                  : players.length < game.max_players
+                    ? `Start now (${players.length})`
+                    : "Dealing…"}
+              </button>
+            ) : (
+              <p className="rounded-2xl bg-card/70 py-4 text-center text-sm text-muted-foreground backdrop-blur-md">
+                Match starts when the table is full…
+              </p>
+            )}
+          </div>
         </div>
       </main>
     );
   }
+
 
   const others = players.filter((p) => p.client_id !== clientId);
   const winner = players.find((p) => p.client_id === game.winner_client);
