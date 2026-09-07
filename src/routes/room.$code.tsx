@@ -354,23 +354,28 @@ function RoomPage() {
 
   async function drawCard() {
     if (!game || !me || !myTurn || working) return;
-    setWorking(true);
     const res = drawCards(1, asCards(game.draw_pile), discard);
+    const nextHand = [...myHand, ...res.taken];
+    const nextTurn = seatAfter(me.seat, 1, game.direction);
+    setPlayers((prev) =>
+      prev.map((p) => (p.id === me.id ? ({ ...p, hand: toJson(nextHand), called_uno: false } as PlayerRow) : p)),
+    );
+    setGame((prev) => (prev ? { ...prev, turn_seat: nextTurn } : prev));
     await supabase
       .from("players")
-      .update({ hand: toJson([...myHand, ...res.taken]), called_uno: false })
+      .update({ hand: toJson(nextHand), called_uno: false })
       .eq("id", me.id);
     await supabase
       .from("games")
       .update({
         draw_pile: toJson(res.pile),
         discard_pile: toJson(res.disc),
-        turn_seat: seatAfter(me.seat, 1, game.direction),
+        turn_seat: nextTurn,
         last_action: `${me.name} drew a card`,
       })
       .eq("id", game.id);
-    setWorking(false);
   }
+
 
   async function callUno() {
     if (!me) return;
