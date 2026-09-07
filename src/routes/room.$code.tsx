@@ -112,23 +112,50 @@ function RoomPage() {
 
   useEffect(() => {
     if (!game?.id) return;
+    const gameId = game.id;
     const channel = supabase
-      .channel(`room-${game.id}`)
+      .channel(`room-${gameId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "games", filter: `id=eq.${game.id}` },
-        () => void load(),
+        { event: "*", schema: "public", table: "games", filter: `id=eq.${gameId}` },
+        (payload) => {
+          const row = payload.new as GameRow | undefined;
+          if (row?.id) setGame(row);
+        },
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "players", filter: `game_id=eq.${game.id}` },
-        () => void load(),
+        { event: "*", schema: "public", table: "players", filter: `game_id=eq.${gameId}` },
+        (payload) => {
+          if (payload.eventType === "DELETE") {
+            const old = payload.old as { id?: string };
+            setPlayers((prev) => prev.filter((p) => p.id !== old.id));
+            return;
+          }
+          const row = payload.new as PlayerRow | undefined;
+          if (!row?.id) return;
+          setPlayers((prev) => {
+            const exists = prev.some((p) => p.id === row.id);
+            const next = exists ? prev.map((p) => (p.id === row.id ? row : p)) : [...prev, row];
+            return next.sort((a, b) => a.seat - b.seat);
+          });
+        },
       )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [game?.id, load]);
+  }, [game?.id]);
+
+  // Auto-start once every seat is filled (host does the deal).
+  useEffect(() => {
+    if (!game || game.status !== "lobby") return;
+    if (game.host_client !== clientId) return;
+    if (players.length < game.max_players) return;
+    void startGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game?.status, game?.max_players, game?.host_client, players.length, clientId]);
+
 
   const me = players.find((p) => p.client_id === clientId) ?? null;
   const isHost = !!game && game.host_client === clientId;
