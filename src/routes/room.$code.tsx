@@ -50,6 +50,7 @@ interface GameRow {
   pending_draw: number;
   last_action: string | null;
   winner_client: string | null;
+  is_public?: boolean;
 }
 
 interface PlayerRow {
@@ -556,7 +557,7 @@ function RoomPage() {
   const winner = players.find((p) => p.client_id === game.winner_client);
 
   return (
-    <main className="flex min-h-screen flex-col gap-4 px-4 py-5">
+    <main className="night-page flex min-h-screen flex-col gap-4 px-4 py-5">
       <header className="flex items-center justify-between text-sm">
         <Link to="/" className="text-display text-2xl text-uno-yellow">
           UNO
@@ -698,7 +699,7 @@ function RoomPage() {
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-5 text-center">
+    <div className="night-page flex min-h-screen flex-col items-center justify-center px-5 text-center">
       {children}
     </div>
   );
